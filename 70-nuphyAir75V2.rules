@@ -20,4 +20,4 @@
 # "path_id" builtin forces physical path resolution, and explicitly setting ENV{ID_SEAT}="seat0"
 # guarantees systemd-logind binds the node to the active desktop session to grant dynamic ACLs.
 
-KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="3246", IMPORT{builtin}="path_id", ENV{ID_SEAT}="seat0", TAG+="uaccess"
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="3246", TAG+="uaccess"

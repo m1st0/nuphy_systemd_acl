@@ -18,19 +18,17 @@ Please share support:
 
 When attempting to configure a NuPhy Air75 V2 using VIA or the NuPhy Web Console on Linux using Chromium-based browsers, the WebHID API fails with a permission error.
 
-Raw kernel `/dev/hidraw*` device nodes default to `root:root` (`0600`). Standard `TAG+="uaccess"` rules fail on these interfaces due to two common issues:
+Raw kernel `/dev/hidraw*` device nodes default to `root:root` (`0600`). Standard `TAG+="uaccess"` rules may fail on these interfaces if they are processed too late in the udev rule sequence.
 
-1. **Lexical Ordering Failure:** Rules named `99-*.rules` evaluate *after* `/lib/udev/rules.d/73-seat-late.rules`. Because `73-seat-late.rules` is the system rule that evaluates `uaccess` tags and applies dynamic POSIX ACLs, setting `uaccess` in a `99-*` file occurs too late.
-2. **Missing Seat/Path Attribution:** Kernel `hidraw` sub-interfaces lack systemd `ID_PATH` data by default. Importing `path_id` forces path resolution and explicitly sets `ENV{ID_SEAT}="seat0"`, allowing `systemd-logind` to map the device to your active desktop session.
+**Lexical Ordering Failure:** Rules named `99-*.rules` evaluate *after* `/usr/lib/udev/rules.d/73-seat-late.rules`. Because `73-seat-late.rules` handles seat-related device processing and `uaccess` permissions, adding the `uaccess` tag in a later rule may be too late for the expected ACLs to be applied.
 
-This solution provides a clean, secure, systemd-compliant udev configuration without resorting to world-writable `0666` modes or forced `plugdev` group assignments.
+This solution provides a clean, device-specific udev configuration without resorting to world-writable `0666` modes or forced `plugdev` group assignments.
 
 ## Features
 
 - Native `uaccess` implementation using dynamic POSIX ACLs.
 - Eliminates security risks associated with world-writable (`0666`) permissions.
 - Correct lexical ordering (`70-` prefix) to execute prior to `73-seat-late.rules`.
-- Automated physical path resolution (`path_id`) and explicit `seat0` assignment.
 
 ## Setup and Use
 
