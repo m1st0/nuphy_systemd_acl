@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Maulik Mistry
+#
+# NuPhy Air75 V2 WebHID/VIA Access Rule
+#
+# Vendor ID:  19f5
+# Product ID: 3246
+#
+# TECHNICAL NOTE ON UACCESS AND FILE NUMBERING:
+# Systemd processes udev rules in strict lexical (alphabetical/numerical) order.
+# The rule responsible for evaluating TAG+="uaccess" and applying dynamic POSIX ACLs
+# for the active logged-in graphical user is /lib/udev/rules.d/73-seat-late.rules.
+#
+# Rules with a prefix higher than 73 (e.g., 99-nuphy.rules) set TAG+="uaccess" too late,
+# causing systemd-logind to skip setting user ACLs on the device node. Using a prefix
+# below 73 (such as 70-nuphy.rules) ensures the node is tagged before seat evaluation.
+#
+# SEAT ATTRIBUTION & PATH ID:
+# Kernel hidraw interfaces often lack seat attribution data by default. Importing systemd's
+# "path_id" builtin forces physical path resolution, and explicitly setting ENV{ID_SEAT}="seat0"
+# guarantees systemd-logind binds the node to the active desktop session to grant dynamic ACLs.
+
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="3246", IMPORT{builtin}="path_id", ENV{ID_SEAT}="seat0", TAG+="uaccess"
